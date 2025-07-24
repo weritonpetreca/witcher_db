@@ -54,13 +54,33 @@ Siga os passos abaixo para configurar e executar o projeto em seu ambiente local
 Certifique-se de ter o **PostgreSQL** e o cliente de linha de comando **psql** instalados em sua máquina.
 
 ### 2. Clone o Repositório
+Para obter uma cópia local do projeto, abra seu terminal e execute o seguinte comando:
+```bash
+git clone https://github.com/weritonpetreca/witcher_db.git
+```
 
 ### 3. Crie o Banco de Dados e Carregue o Schema
 Execute os seguintes comandos no seu terminal:
 *Substitua `seu_usuario` pelo seu nome de usuário do PostgreSQL.*
 
+```bash
+psql -U seu_usuario
+``` 
+-- No prompt do PostgreSQL, crie o banco de dados:
+```
+CREATE DATABASE witcher;
+\q
+```
+Impoerte o schema para criar as tabelas e as regras de negócio:
+```bash
+psql -U seu_usuario -d witcher -f schema.sql
+```
+
 ### 4. Popule com Dados de Demonstração
 Para ver o banco em ação, execute o script de demonstração que insere dados e realiza uma consulta de exemplo.
+```bash
+psql -U seu_usuario -d witcher -f script_demo.sql
+```
 Ao final, você verá o pedido `pedido_id = 1` com o campo `valor_total` preenchido automaticamente com `450.00` pela trigger, confirmando que a automação está funcionando!
 
 ---
@@ -76,8 +96,36 @@ O modelo foi projetado seguindo as três primeiras formas normais para evitar re
 | **Pedido** | O contrato formal entre um cliente e um bruxo | `pedido` |
 | **Item_Pedido**| Detalhes específicos de um contrato (ex: 1 Grifo) | `item_pedido` |
 
-> **Dica**: Para uma visualização completa, um Diagrama Entidade-Relacionamento (DER) seria um ótimo complemento para esta seção.
+```mermaid
+erDiagram
+CLIENTE {
+int cliente_id PK
+varchar nome
+varchar email
+}
+PRODUTO {
+int produto_id PK
+varchar nome
+decimal preco
+}
+PEDIDO {
+int pedido_id PK
+int cliente_id FK
+date data_pedido
+decimal valor_total
+}
+ITEM_PEDIDO {
+int item_pedido_id PK
+int pedido_id FK
+int produto_id FK
+int quantidade
+decimal preco_unitario
+}
 
+    CLIENTE ||--o{ PEDIDO : "faz"
+    PEDIDO ||--o{ ITEM_PEDIDO : "possui"
+    PRODUTO ||--o{ ITEM_PEDIDO : "é parte de"
+```
 ---
 
 ## 🗺️ Próximos Passos
